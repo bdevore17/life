@@ -13,7 +13,7 @@ app.use(morgan(':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:htt
 app.use(express.static(path.resolve(__dirname, '.', 'build')));
 
 app.get('/api/news', (request, response) => {
-  let news = new News(process.env.NEWS_API);
+  let news = new News(process.env.NEWS_KEY);
   news.getData((err, articles) => {
     if (!err) {
       response.json(articles);
