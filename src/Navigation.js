@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import AppBar from 'material-ui/AppBar';
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-
+import MenuDrawer from './MenuDrawer';
 
 class Navigation extends Component {
   constructor(props) {
@@ -11,20 +10,35 @@ class Navigation extends Component {
       cursor: 'pointer'
       }
     };
-    this.state = {};
-    console.log(this.state);
+    this.state = {
+      drawerOpen: false
+    };
   }
 
-  handleTitleTap() {
+  handleTitleTap = () => {
     console.log("title tap");
+  }
+
+  toggleDrawer = () => {
+    this.setState({drawerOpen: !this.state.drawerOpen});
   }
 
   render() {
     return (
-      <AppBar
-        title={<span style={this.styles.title}>{this.props.title}</span>}
-        onTitleTouchTap={this.handleTitleTap}
-      />
+      <div>
+        <AppBar
+          title={<span style={this.styles.title}>{this.props.title}</span>}
+          onTitleTouchTap={this.handleTitleTap}
+          onLeftIconButtonTouchTap={this.toggleDrawer}
+        />
+        <MenuDrawer
+          open={this.state.drawerOpen}
+          toggleOpen={this.toggleDrawer}
+          index={this.props.index}
+          handleMenuItem={this.props.handleMenuItem}
+          items={this.props.items}
+        />
+      </div>
     );
   }
 }

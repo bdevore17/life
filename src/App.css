@@ -21,5 +21,15 @@
 @keyframes App-logo-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+
 }
 */
+
+@fontface {
+  font-family: 'Roboto';
+  src: url('https://fonts.googleapis.com/css?family=Roboto')
+}
+
+body {
+  font-family: 'Roboto';
+}
