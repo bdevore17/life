@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import IconMenu from 'material-ui/IconMenu';
 import IconButton from 'material-ui/IconButton';
-import FontIcon from 'material-ui/FontIcon';
 import NavigationExpandMoreIcon
   from 'material-ui/svg-icons/navigation/expand-more';
 import MenuItem from 'material-ui/MenuItem';
@@ -11,33 +10,48 @@ import Dialog from 'material-ui/Dialog';
 import AutoComplete from 'material-ui/AutoComplete';
 import FlatButton from 'material-ui/FlatButton';
 import $ from 'jquery';
-
-import {
-  Toolbar,
-  ToolbarGroup,
-  ToolbarSeparator,
-  ToolbarTitle
-} from 'material-ui/Toolbar';
+import { Toolbar, ToolbarGroup } from 'material-ui/Toolbar';
+import comparisons from './helpers/stockComparison'
 
 class StockToolbar extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      value: 3,
+      value: 0,
       stocks: [],
       dataSource: [],
       openDialog: false,
-      validInput: false
+      validInput: false,
+      deleteEnabled: false
     };
-    this.exchanges = ['NYSE', 'NASDAQ', 'AMEX', 'Korea'];
+    this.exchanges = ['NYSE', 'NASDAQ', 'AMEX'];
+    this.sortOptions = [
+      'Added First',
+      'Added Last',
+      'Alphabetically',
+      'Previous Close',
+      'Day Open',
+      'Current Price',
+      'Gainers',
+      'Losers'
+    ].map((option, key) => {
+      return (
+        <MenuItem
+          key={key}
+          value={key}
+          label={`Order By: ${option}`}
+          primaryText={option}
+        />
+      );
+    });
   }
 
   setDataSource = suggestions => {
-    let ds = [];
-    JSON.parse(suggestions).ResultSet.Result.map(sug => {
-      // console.log(sug.type, sug.exchDisp);
-      if (sug.type === 'S' && this.exchanges.includes(sug.exchDisp))
-        ds.push(`${sug.name} (${sug.symbol})`);
+    let ds = JSON.parse(suggestions).ResultSet.Result.filter(sug => {
+      return sug.type === 'S' && this.exchanges.includes(sug.exchDisp);
+    });
+    ds = ds.map(sug => {
+      return `${sug.name} (${sug.symbol})`;
     });
     this.setState({ dataSource: ds });
   };
@@ -61,7 +75,37 @@ class StockToolbar extends Component {
     });
   };
 
-  handleChange = (event, index, value) => this.setState({ value });
+  handleChange = (event, index, value) => {
+    this.setState({ value });
+    switch (index) {
+      case 0:
+        this.props.sortStocks(comparisons.addedFirst);
+        return;
+      case 1:
+        this.props.sortStocks(comparisons.addedLast);
+        return;
+      case 2:
+        this.props.sortStocks(comparisons.alphabetical);
+        return;
+      case 3:
+        this.props.sortStocks(comparisons.previousClose);
+        return;
+      case 4:
+        this.props.sortStocks(comparisons.dayOpen);
+        return;
+      case 5:
+        this.props.sortStocks(comparisons.currentPrice);
+        return;
+      case 6:
+        this.props.sortStocks(comparisons.gainers);
+        return;
+      case 7:
+        this.props.sortStocks(comparisons.losers);
+        return;
+      default:
+        return;
+    }
+  };
 
   handleSubmit = () => {
     this.setState({ openDialog: false });
@@ -111,23 +155,26 @@ class StockToolbar extends Component {
       <div>
         <Toolbar>
           <ToolbarGroup firstChild={true}>
-            <DropDownMenu value={this.state.value} onChange={this.handleChange}>
-              <MenuItem value={1} primaryText="All Broadcasts" />
-              <MenuItem value={2} primaryText="All Voice" />
-              <MenuItem value={3} primaryText="All Text" />
-              <MenuItem value={4} primaryText="Complete Voice" />
-              <MenuItem value={5} primaryText="Complete Text" />
-              <MenuItem value={6} primaryText="Active Voice" />
-              <MenuItem value={7} primaryText="Active Text" />
+            <DropDownMenu
+              value={this.state.value}
+              onChange={this.handleChange}
+              iconStyle={{ fill: 'black' }}
+            >
+              {this.sortOptions}
             </DropDownMenu>
           </ToolbarGroup>
           <ToolbarGroup>
-            <ToolbarTitle text="Options" />
-            <FontIcon className="muidocs-icon-custom-sort" />
-            <ToolbarSeparator />
             <RaisedButton
-              label="Add Stock"
+              label="Add"
               primary={true}
+              onTouchTap={() => this.setState({ openDialog: true })}
+            />
+            <RaisedButton
+              label="Delete"
+              labelColor="white"
+              backgroundColor="red"
+              disabledBackgroundColor="#d3d3d3"
+              disabled={true}
               onTouchTap={() => this.setState({ openDialog: true })}
             />
             <IconMenu

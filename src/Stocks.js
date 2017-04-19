@@ -16,6 +16,7 @@ class Stocks extends Component {
     this.state = {
       stocks: []
     };
+    this.count = 0;
     this.getStocks();
     this.fetches = setInterval(this.getStocks, 5000);
   }
@@ -29,11 +30,9 @@ class Stocks extends Component {
       },
       type: 'GET',
       success: stock => {
-        stock.symbol = this.state.stocks[index].symbol;
-        stock.name = this.state.stocks[index].name;
         let temp = this.state.stocks;
         if (temp[index].symbol === this.state.stocks[index].symbol) {
-          temp[index] = stock;
+          Object.assign(temp[index], stock);
           this.setState({ stocks: temp });
         }
       },
@@ -52,7 +51,8 @@ class Stocks extends Component {
   addStock = (name, symbol) => {
     let stock = {
       name: name,
-      symbol: symbol
+      symbol: symbol,
+      key: this.count++
     };
     this.setState(
       {
@@ -60,6 +60,12 @@ class Stocks extends Component {
       },
       () => this.getStocks()
     );
+  };
+
+  sortStocks = compareFunction => {
+    let stocks = this.state.stocks;
+    stocks.sort(compareFunction);
+    this.setState({ stocks: stocks });
   };
 
   componentWillUnmount() {
@@ -70,28 +76,31 @@ class Stocks extends Component {
     let rows = this.state.stocks.map((stock, index) => {
       let diff = stock.currentPrice - stock.previousClose;
       let prefix = '+';
+      let color = '#21bf21';
       if (diff < 0) {
         prefix = '-';
         diff *= -1;
+        color = '#FF0000';
       }
-      let prices = stock.dayOpenPrice && stock.currentPrice && stock.previousClose;
+      let prices =
+        stock.dayOpenPrice && stock.currentPrice && stock.previousClose;
       return (
         <TableRow key={index}>
           <TableRowColumn>{stock.name}</TableRowColumn>
           <TableRowColumn>{stock.symbol}</TableRowColumn>
           <TableRowColumn>
-            {prices ? `\$${stock.previousClose.toFixed(2)}` : ''}
+            {prices ? `$${stock.previousClose.toFixed(2)}` : ''}
           </TableRowColumn>
           <TableRowColumn>
-            {prices ? `\$${stock.dayOpenPrice.toFixed(2)}` : ''}
+            {prices ? `$${stock.dayOpenPrice.toFixed(2)}` : ''}
           </TableRowColumn>
           <TableRowColumn>
-            {prices ? `\$${stock.currentPrice.toFixed(2)}` : ''}
+            {prices ? `$${stock.currentPrice.toFixed(2)}` : ''}
           </TableRowColumn>
-          <TableRowColumn>
-            {prices ? `${prefix}\$${diff.toFixed(2)}` : ''}
+          <TableRowColumn style={{ color: color }}>
+            {prices ? `${prefix}$${diff.toFixed(2)}` : ''}
           </TableRowColumn>
-          <TableRowColumn>
+          <TableRowColumn style={{ color: color }}>
             {prices
               ? `${prefix}${(diff / stock.previousClose * 100).toFixed(2)}%`
               : ''}
@@ -99,34 +108,10 @@ class Stocks extends Component {
         </TableRow>
       );
     });
-    // let articleCards = this.state.articles.map((article, index) => {
-    // return (
-    //   <Widget
-    //   title={article.title}
-    //   media={<img src={article.image}/>}
-    //   description={article.description}
-    //   key={index}
-    //   onMediaTap={() => window.open(article.url,'_blank')}
-    //   />
-    // );
-    // });
-
-    // return (
-    //   <div>
-    //     <AutoComplete
-    //       hintText="Add Stock Symbol Here"
-    //       dataSource={this.state.dataSource}
-    //       onUpdateInput={this.handleAutoFill}
-    //       filter={AutoComplete.fuzzyFilter}
-    //       floatingLabelText="Add Stock"
-    //     />
-    //   {articleCards}
-    //   </div>
-    // );
 
     return (
       <div>
-        <StockToolbar addStock={this.addStock} />
+        <StockToolbar addStock={this.addStock} sortStocks={this.sortStocks} />
         <Table>
           <TableHeader>
             <TableRow>
