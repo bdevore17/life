@@ -21,20 +21,18 @@ class Stocks extends Component {
     this.fetches = setInterval(this.getStocks, 5000);
   }
 
-  fetchStock = index => {
+  fetchStock = s => {
     let url = '/api/stock';
     $.ajax({
       url: url,
       data: {
-        symbol: this.state.stocks[index].symbol
+        symbol: s.symbol
       },
       type: 'GET',
       success: stock => {
         let temp = this.state.stocks;
-        if (temp[index].symbol === this.state.stocks[index].symbol) {
-          Object.assign(temp[index], stock);
-          this.setState({ stocks: temp });
-        }
+        Object.assign(s, stock);
+        this.setState({ stocks: temp });
       },
       error: (xhr, status, err) => {
         console.error(url, status, err.toString());
@@ -44,7 +42,7 @@ class Stocks extends Component {
 
   getStocks = () => {
     for (let i = 0; i < this.state.stocks.length; i++) {
-      this.fetchStock(i);
+      this.fetchStock(this.state.stocks[i]);
     }
   };
 
