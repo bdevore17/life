@@ -171,11 +171,12 @@ class StockToolbar extends Component {
             />
             <RaisedButton
               label="Delete"
-              labelColor="white"
-              backgroundColor="red"
+              secondary={true}
+              // labelColor="#FFFFFF"
+              // backgroundColor="#FF0000"
               disabledBackgroundColor="#d3d3d3"
-              disabled={true}
-              onTouchTap={() => this.setState({ openDialog: true })}
+              disabled={!this.props.deleteStockEnabled}
+              onTouchTap={this.props.onDelete}
             />
             <IconMenu
               iconButtonElement={

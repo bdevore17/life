@@ -14,7 +14,8 @@ class Stocks extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      stocks: []
+      stocks: [],
+      deleteEnabled: false
     };
     this.count = 0;
     this.getStocks();
@@ -50,7 +51,8 @@ class Stocks extends Component {
     let stock = {
       name: name,
       symbol: symbol,
-      key: this.count++
+      key: this.count++,
+      selected: false
     };
     this.setState(
       {
@@ -64,6 +66,30 @@ class Stocks extends Component {
     let stocks = this.state.stocks;
     stocks.sort(compareFunction);
     this.setState({ stocks: stocks });
+  };
+
+  handleRowSelection = selectedRows => {
+    let stocks = this.state.stocks.slice();
+    if (selectedRows === 'all') {
+      let arr = [];
+      for (let i = 0; i < this.state.stocks.length; i++) {
+        arr[i] = i;
+      }
+      selectedRows = arr;
+    } else if (selectedRows === 'none') {
+      selectedRows = [];
+    }
+    for (let i = 0; i < stocks.length; i++) {
+      stocks[i].selected = selectedRows.includes(i);
+    }
+    this.setState({ stocks: stocks, deleteEnabled: selectedRows.length > 0 });
+  };
+
+  deleteSelectedStocks = () => {
+    let newStocks = this.state.stocks.filter(stock => {
+      return !stock.selected;
+    });
+    this.setState({ stocks: newStocks, deleteEnabled: false });
   };
 
   componentWillUnmount() {
@@ -83,7 +109,7 @@ class Stocks extends Component {
       let prices =
         stock.dayOpenPrice && stock.currentPrice && stock.previousClose;
       return (
-        <TableRow key={index}>
+        <TableRow key={index} selected={stock.selected}>
           <TableRowColumn>{stock.name}</TableRowColumn>
           <TableRowColumn>{stock.symbol}</TableRowColumn>
           <TableRowColumn>
@@ -109,8 +135,17 @@ class Stocks extends Component {
 
     return (
       <div>
-        <StockToolbar addStock={this.addStock} sortStocks={this.sortStocks} />
-        <Table>
+        <StockToolbar
+          addStock={this.addStock}
+          sortStocks={this.sortStocks}
+          deleteStockEnabled={this.state.deleteEnabled}
+          onDelete={this.deleteSelectedStocks}
+        />
+        <Table
+          multiSelectable
+          fixedHeader
+          onRowSelection={this.handleRowSelection}
+        >
           <TableHeader>
             <TableRow>
               <TableHeaderColumn>Name</TableHeaderColumn>
@@ -122,7 +157,12 @@ class Stocks extends Component {
               <TableHeaderColumn>% Change</TableHeaderColumn>
             </TableRow>
           </TableHeader>
-          <TableBody>
+          <TableBody
+            deselectOnClickaway={false}
+            showRowHover={true}
+            key={this.count++}
+          >
+            {/*remove the key above when the select bug is fixed, issue #6006 in material-ui --!>*/}
             {rows}
           </TableBody>
         </Table>
