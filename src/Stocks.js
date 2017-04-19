@@ -32,7 +32,7 @@ class Stocks extends Component {
       },
       type: 'GET',
       success: stock => {
-        let temp = this.state.stocks;
+        let temp = this.state.stocks.slice();
         Object.assign(s, stock);
         this.setState({ stocks: temp });
       },
@@ -65,7 +65,7 @@ class Stocks extends Component {
   };
 
   sortStocks = compareFunction => {
-    let stocks = this.state.stocks;
+    let stocks = this.state.stocks.slice();
     stocks.sort(compareFunction);
     this.setState({ stocks: stocks });
   };
