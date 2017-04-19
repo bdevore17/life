@@ -15,7 +15,8 @@ class Stocks extends Component {
     super(props);
     this.state = {
       stocks: [],
-      deleteEnabled: false
+      deleteEnabled: false,
+      allRowsSelected: false
     };
     this.count = 0;
     this.getStocks();
@@ -52,11 +53,12 @@ class Stocks extends Component {
       name: name,
       symbol: symbol,
       key: this.count++,
-      selected: false
+      selected: this.state.allRowsSelected
     };
     this.setState(
       {
-        stocks: this.state.stocks.concat([stock])
+        stocks: this.state.stocks.concat([stock]),
+        deleteEnabled: this.state.deleteEnabled || stock.selected
       },
       () => this.getStocks()
     );
@@ -70,26 +72,37 @@ class Stocks extends Component {
 
   handleRowSelection = selectedRows => {
     let stocks = this.state.stocks.slice();
+    let allRowsSelected = this.state.allRowsSelected;
     if (selectedRows === 'all') {
       let arr = [];
+      allRowsSelected = true;
       for (let i = 0; i < this.state.stocks.length; i++) {
         arr[i] = i;
       }
       selectedRows = arr;
     } else if (selectedRows === 'none') {
       selectedRows = [];
+      allRowsSelected = false;
     }
     for (let i = 0; i < stocks.length; i++) {
       stocks[i].selected = selectedRows.includes(i);
     }
-    this.setState({ stocks: stocks, deleteEnabled: selectedRows.length > 0 });
+    this.setState({
+      stocks: stocks,
+      deleteEnabled: selectedRows.length > 0,
+      allRowsSelected: allRowsSelected
+    });
   };
 
   deleteSelectedStocks = () => {
     let newStocks = this.state.stocks.filter(stock => {
       return !stock.selected;
     });
-    this.setState({ stocks: newStocks, deleteEnabled: false });
+    this.setState({
+      stocks: newStocks,
+      deleteEnabled: false,
+      allRowsSelected: false
+    });
   };
 
   componentWillUnmount() {
@@ -145,7 +158,11 @@ class Stocks extends Component {
           multiSelectable
           fixedHeader
           onRowSelection={this.handleRowSelection}
+          allRowsSelected={this.state.allRowsSelected}
+          key={this.count++}
         >
+          {/* same issue as below with key! */}
+
           <TableHeader>
             <TableRow>
               <TableHeaderColumn>Name</TableHeaderColumn>
@@ -162,7 +179,7 @@ class Stocks extends Component {
             showRowHover={true}
             key={this.count++}
           >
-            {/*remove the key above when the select bug is fixed, issue #6006 in material-ui --!>*/}
+            {/*remove the key above when the select bug is fixed, issue #6006 in material-ui */}
             {rows}
           </TableBody>
         </Table>
