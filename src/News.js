@@ -16,14 +16,14 @@ class News extends Component {
     $.ajax({
       url: url,
       type: 'GET',
-      success: (articles) => {
-        this.setState({articles: articles});
+      success: articles => {
+        this.setState({ articles: articles });
       },
       error: (xhr, status, err) => {
         console.error(url, status, err.toString());
       }
     });
-  }
+  };
 
   // componentWillUnmount() {
   //   clearInterval(this.fetches);
@@ -33,18 +33,18 @@ class News extends Component {
     let articleCards = this.state.articles.map((article, index) => {
       return (
         <Widget
-        title={article.title}
-        media={<img src={article.image}/>}
-        description={article.description}
-        key={index}
-        onMediaTap={() => window.open(article.url,'_blank')}
+          title={article.title}
+          media={<img src={article.image} alt={article.title} />}
+          description={article.description}
+          key={index}
+          onMediaTap={() => window.open(article.url, '_blank')}
         />
       );
     });
 
     return (
       <div>
-      {articleCards}
+        {articleCards}
       </div>
     );
   }

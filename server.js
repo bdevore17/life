@@ -3,6 +3,8 @@ const express = require('express');
 const morgan = require('morgan');
 const path = require('path');
 const News = require('./lib/news');
+const Stock = require('./lib/stock')
+const request = require('request');
 
 const app = express();
 
@@ -12,11 +14,32 @@ app.use(morgan(':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:htt
 // Serve static assets
 app.use(express.static(path.resolve(__dirname, '.', 'build')));
 
-app.get('/api/news', (request, response) => {
+app.get('/api/news', (req, res) => {
   let news = new News(process.env.NEWS_KEY);
   news.getData((err, articles) => {
     if (!err) {
-      response.json(articles);
+      res.json(articles);
+    }
+  });
+});
+
+app.get('/api/stock', (req, res) => {
+  let stock = new Stock(req.query.symbol);
+  stock.getData((err, data) => {
+    if (!err) {
+      res.json(data);
+    }
+    else {
+      res.status(500).send(err);
+    }
+  });
+});
+
+app.get('/api/stock/autofill', (req, res) => {
+  let url = 'http://d.yimg.com/autoc.finance.yahoo.com/autoc?region=1&lang=en&query='.concat(req.query.input);
+  request({url: url}, (error, response, body) => {
+    if (!error) {
+      res.json(body);
     }
   });
 });
