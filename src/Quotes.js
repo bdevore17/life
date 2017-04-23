@@ -36,7 +36,6 @@ class Navigation extends Component {
       url: url,
       type: 'GET',
       success: response => {
-        console.log(response);
         this.setState({
           quote: response.quote,
           author: '- '.concat(response.author),
