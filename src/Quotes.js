@@ -15,7 +15,7 @@ class Navigation extends Component {
       width: '75%',
       padding: 10,
       margin: 'auto',
-      textAlign: 'center',
+      textAlign: 'center'
     };
     this.buttonStyle = {
       textAlign: 'center',
@@ -44,6 +44,7 @@ class Navigation extends Component {
         });
       },
       error: (xhr, status, err) => {
+        this.setState({ buttonEnabled: true });
         console.error(url, status, err.toString());
       }
     });
