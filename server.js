@@ -1,15 +1,20 @@
-require('dotenv').config()
+require('dotenv').config();
 const express = require('express');
 const morgan = require('morgan');
 const path = require('path');
 const News = require('./lib/news');
-const Stock = require('./lib/stock')
+const Stock = require('./lib/stock');
+const Quote = require('./lib/quote');
 const request = require('request');
 
 const app = express();
 
 // Setup logger
-app.use(morgan(':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] :response-time ms'));
+app.use(
+  morgan(
+    ':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] :response-time ms'
+  )
+);
 
 // Serve static assets
 app.use(express.static(path.resolve(__dirname, '.', 'build')));
@@ -28,18 +33,32 @@ app.get('/api/stock', (req, res) => {
   stock.getData((err, data) => {
     if (!err) {
       res.json(data);
-    }
-    else {
+    } else {
       res.status(500).send(err);
     }
   });
 });
 
 app.get('/api/stock/autofill', (req, res) => {
-  let url = 'http://d.yimg.com/autoc.finance.yahoo.com/autoc?region=1&lang=en&query='.concat(req.query.input);
-  request({url: url}, (error, response, body) => {
+  let url = 'http://d.yimg.com/autoc.finance.yahoo.com/autoc?region=1&lang=en&query='.concat(
+    req.query.input
+  );
+  request({ url: url }, (error, response, body) => {
     if (!error) {
       res.json(body);
+    } else {
+      res.status(500).send(err);
+    }
+  });
+});
+
+app.get('/api/quote', (req, res) => {
+  let quote = new Quote();
+  quote.getData((err, data) => {
+    if (!err) {
+      res.json(data);
+    } else {
+      res.status(500).send(err);
     }
   });
 });

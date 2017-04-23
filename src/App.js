@@ -5,6 +5,7 @@ import Navigation from './Navigation';
 import './App.css'
 import News from './News';
 import Stocks from './Stocks'
+import Quotes from './Quotes'
 
 class App extends Component {
 
@@ -12,7 +13,7 @@ class App extends Component {
     super(props);
     this.items = ['Home', 'News', 'Stocks', 'Weather', 'Quotables'];
     this.state = {
-      index: 2
+      index: 4
     };
   }
 
@@ -27,7 +28,7 @@ class App extends Component {
       case 3:
         return;
       case 4:
-        return;
+        return <Quotes/>;
       default:
         return;
     }
